@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+    bot-test-nginx:
+        build: ./docker/nginx
+        container_name: bot-test-nginx
+        links:
+            - bot-test-php
+        expose:
+            - 80
+            - 443
+        ports:
+            - ${NGINX_PORT}:80
+        volumes:
+            - ./public:/var/www/Bot-test/public
+
+    bot-test-php:
+        container_name: bot-test-php
+        environment:
+            - PHP_IDE_CONFIG=serverName=bot-test
+            - JWT_PRIVATE_KEY_PATH
+            - JWT_PUBLIC_KEY_PATH
+            - JWT_PASSPHRASE
+        build: ./docker/php
+        volumes:
+            - ./:/var/www/Bot-test
+            - ~/.ssh:/var/www/.ssh
+
+    bot-test-postgres:
+        container_name: bot-test-postgres
+        build: ./docker/postgres
+        environment:
+            - POSTGRES_USER=docker
+            - POSTGRES_PASSWORD=docker
+            - PGDATA=/var/lib/postgresql/data/pgdata
+        ports:
+            - ${PG_PORT}:5432
+        volumes:
+            - ./:/var/www/Bot-test
